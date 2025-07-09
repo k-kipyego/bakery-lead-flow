@@ -98,7 +98,7 @@
 
 /* Custom bakery styles */
 .bakery-gradient {
-  background: linear-gradient(135deg, theme('colors.accent') 0%, theme('colors.secondary') 100%);
+  background: linear-gradient(135deg, theme('colors.accent.DEFAULT') 0%, theme('colors.secondary.DEFAULT') 100%);
 }
 
 .card-hover {

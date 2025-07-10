@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Cake, Heart, Star, Phone, Mail, MapPin, Instagram, Facebook, MessageCircle } from 'lucide-react';
+import { Cake, Heart, Star, Phone, Mail, MapPin, Instagram, Facebook, MessageCircle, Cookie, Sparkles } from 'lucide-react';
 
 const PublicWebsite = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +26,7 @@ const PublicWebsite = () => {
     
     toast({
       title: "Thank you for your inquiry!",
-      description: "We'll get back to you within 24 hours to discuss your cake order.",
+      description: "We'll get back to you within 24 hours to discuss your sweet order.",
     });
     
     // Reset form
@@ -46,29 +46,53 @@ const PublicWebsite = () => {
     }));
   };
 
-  const cakeTypes = [
-    { name: "Wedding Cakes", description: "Elegant tiered cakes for your special day", price: "From $200" },
-    { name: "Birthday Cakes", description: "Custom designs that make birthdays memorable", price: "From $45" },
-    { name: "Cupcakes", description: "Perfectly portioned treats for any occasion", price: "From $24/dozen" },
-    { name: "Custom Designs", description: "Bring your vision to life with our artistic touch", price: "Quote on request" }
+  const productCategories = [
+    { 
+      name: "Simple Cakes", 
+      description: "Classic flavors made with love",
+      items: ["Very Vanilla", "Chocolate Marble", "Strawberry Marble", "Strawberry", "Lemon", "Orange"],
+      price: "From ₹2500" 
+    },
+    { 
+      name: "Classic Cakes", 
+      description: "Traditional favorites that never go out of style",
+      items: ["Banana Bread", "Carrot", "Chocolate", "Red Velvet", "Funfetti"],
+      price: "From ₹2800" 
+    },
+    { 
+      name: "Specialty Cakes", 
+      description: "Unique flavors for adventurous taste buds",
+      items: ["Blueberry Lemon", "Cookies & Cream", "Salted Caramel", "Chocolate Caramel", "Chocolate Mint"],
+      price: "From ₹3000" 
+    },
+    { 
+      name: "Treats & More", 
+      description: "Perfect for sharing or personal indulgence",
+      items: ["Chocolate Chip Cookies", "Red Velvet Brownies", "Death by Chocolate Cookies", "Classic Brownies"],
+      price: "From ₹100/piece" 
+    }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50">
+      <nav className="bg-white/90 backdrop-blur-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Cake className="h-8 w-8 text-primary" />
-              <span className="font-serif text-2xl font-bold text-primary">Sweet Delights</span>
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <Cake className="h-8 w-8 text-primary" />
+                <Sparkles className="h-4 w-4 text-accent absolute -top-1 -right-1" />
+              </div>
+              <span className="font-serif text-2xl font-bold text-primary">Treat Yo Self</span>
+              <span className="text-sm text-muted-foreground hidden sm:block">Pastry Shop</span>
             </div>
             <div className="hidden md:flex space-x-8">
               <a href="#about" className="text-foreground hover:text-primary transition-colors">About</a>
-              <a href="#services" className="text-foreground hover:text-primary transition-colors">Services</a>
+              <a href="#menu" className="text-foreground hover:text-primary transition-colors">Menu</a>
               <a href="#contact" className="text-foreground hover:text-primary transition-colors">Contact</a>
               <Button asChild variant="outline" size="sm">
-                <a href="/crm">CRM Login</a>
+                <a href="/crm">Staff Portal</a>
               </Button>
             </div>
           </div>
@@ -79,61 +103,66 @@ const PublicWebsite = () => {
       <section className="relative py-20 px-4 text-center">
         <div className="max-w-4xl mx-auto animate-fade-in">
           <h1 className="font-serif text-5xl md:text-7xl font-bold text-primary mb-6 text-balance">
-            Artisanal Cakes Made with <Heart className="inline h-12 w-12 text-accent" fill="currentColor" />
+            Indulge Yourself with <Heart className="inline h-12 w-12 text-accent" fill="currentColor" />
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 text-balance">
-            From wedding masterpieces to birthday surprises, we craft every cake with passion and premium ingredients.
+            From decadent specialty cakes to irresistible cookies and brownies - every bite is crafted to make you smile.
           </p>
-          <Button size="lg" className="text-lg px-8 py-3" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
-            Order Your Dream Cake
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="text-lg px-8 py-3" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
+              Order Your Treats
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-3" onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}>
+              View Menu
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 px-4 bg-white/50">
+      <section id="about" className="py-20 px-4 bg-white/60">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">Our Story</h2>
+            <h2 className="font-serif text-4xl font-bold text-primary mb-4">Why Treat Yo Self?</h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-balance">
-              For over a decade, Sweet Delights has been the heart of our community's celebrations. 
-              Every cake tells a story, and we're honored to be part of your most precious moments.
+              Life's too short for ordinary desserts. We believe every moment deserves something extraordinary, 
+              from our signature specialty cakes to our indulgent cookies and brownies.
             </p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="card-hover">
+            <Card className="card-hover border-accent/20">
               <CardHeader className="text-center">
-                <Star className="h-12 w-12 text-accent mx-auto mb-4" fill="currentColor" />
-                <CardTitle>Premium Ingredients</CardTitle>
+                <Star className="h-12 w-12 text-primary mx-auto mb-4" fill="currentColor" />
+                <CardTitle className="text-primary">Premium Quality</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  We source only the finest organic flour, farm-fresh eggs, and real vanilla to ensure every bite is exceptional.
+                  We use only the finest ingredients to create treats that taste as amazing as they look.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="card-hover">
+            <Card className="card-hover border-accent/20">
               <CardHeader className="text-center">
-                <Heart className="h-12 w-12 text-accent mx-auto mb-4" fill="currentColor" />
-                <CardTitle>Made with Love</CardTitle>
+                <Heart className="h-12 w-12 text-primary mx-auto mb-4" fill="currentColor" />
+                <CardTitle className="text-primary">Made with Passion</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  Each cake is handcrafted with attention to detail and a genuine passion for creating something beautiful.
+                  Every cake, cookie, and brownie is handcrafted with love and attention to detail.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="card-hover">
+            <Card className="card-hover border-accent/20">
               <CardHeader className="text-center">
-                <Cake className="h-12 w-12 text-accent mx-auto mb-4" />
-                <CardTitle>Custom Creations</CardTitle>
+                <Cookie className="h-12 w-12 text-primary mx-auto mb-4" />
+                <CardTitle className="text-primary">Variety for Everyone</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  From intricate wedding designs to whimsical birthday themes, we bring your vision to delicious life.
+                  From simple classics to adventurous specialties, there's something perfect for every craving.
                 </p>
               </CardContent>
             </Card>
@@ -141,48 +170,66 @@ const PublicWebsite = () => {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-20 px-4">
+      {/* Menu Section */}
+      <section id="menu" className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">Our Specialties</h2>
+            <h2 className="font-serif text-4xl font-bold text-primary mb-4">Our Delicious Menu</h2>
             <p className="text-lg text-muted-foreground text-balance">
-              Every occasion deserves a cake as unique as the celebration itself
+              Every treat is made fresh to order with love and the finest ingredients
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {cakeTypes.map((cake, index) => (
-              <Card key={index} className="card-hover">
+          <div className="grid md:grid-cols-2 gap-8">
+            {productCategories.map((category, index) => (
+              <Card key={index} className="card-hover border-accent/20">
                 <CardHeader>
-                  <CardTitle className="text-lg">{cake.name}</CardTitle>
-                  <CardDescription>{cake.description}</CardDescription>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl text-primary">{category.name}</CardTitle>
+                      <CardDescription className="mt-2">{category.description}</CardDescription>
+                    </div>
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                      {category.price}
+                    </Badge>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <Badge variant="secondary" className="w-full justify-center py-2">
-                    {cake.price}
-                  </Badge>
+                  <div className="grid grid-cols-1 gap-2">
+                    {category.items.map((item, itemIndex) => (
+                      <div key={itemIndex} className="flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-accent"></div>
+                        <span className="text-sm text-muted-foreground">{item}</span>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <p className="text-sm text-muted-foreground">
+              * Prices may vary based on size, design complexity, and special decorations
+            </p>
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 px-4 bg-white/50">
+      <section id="contact" className="py-20 px-4 bg-white/60">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">Let's Create Something Sweet</h2>
+            <h2 className="font-serif text-4xl font-bold text-primary mb-4">Ready to Treat Yourself?</h2>
             <p className="text-lg text-muted-foreground text-balance">
-              Ready to order your perfect cake? Fill out the form below and we'll get back to you within 24 hours.
+              Let us know what sweet creation you're craving and we'll make it happen!
             </p>
           </div>
 
-          <Card className="max-w-2xl mx-auto">
+          <Card className="max-w-2xl mx-auto border-accent/20">
             <CardHeader>
-              <CardTitle>Request a Quote</CardTitle>
-              <CardDescription>Tell us about your dream cake and we'll make it happen</CardDescription>
+              <CardTitle className="text-primary">Request Your Custom Order</CardTitle>
+              <CardDescription>Tell us about your dream treat and we'll create something special</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -220,36 +267,36 @@ const PublicWebsite = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="(555) 123-4567"
+                      placeholder="Your phone number"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="cakeType">Cake Type</Label>
+                    <Label htmlFor="cakeType">What are you craving?</Label>
                     <Input
                       id="cakeType"
                       name="cakeType"
                       value={formData.cakeType}
                       onChange={handleInputChange}
-                      placeholder="Wedding, Birthday, Custom, etc."
+                      placeholder="Cake, cookies, brownies, etc."
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="message">Tell us about your vision *</Label>
+                  <Label htmlFor="message">Tell us more about your order *</Label>
                   <Textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
                     required
-                    placeholder="Describe your ideal cake - size, flavors, design ideas, event date, etc."
+                    placeholder="Describe your ideal treat - flavors, size, special occasions, delivery date, etc."
                     rows={4}
                   />
                 </div>
 
                 <Button type="submit" className="w-full" size="lg">
-                  Send My Request
+                  Send My Sweet Request
                 </Button>
               </form>
             </CardContent>
@@ -262,12 +309,18 @@ const PublicWebsite = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Cake className="h-6 w-6" />
-                <span className="font-serif text-xl font-bold">Sweet Delights</span>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="relative">
+                  <Cake className="h-6 w-6" />
+                  <Sparkles className="h-3 w-3 absolute -top-1 -right-1" />
+                </div>
+                <div>
+                  <span className="font-serif text-xl font-bold">Treat Yo Self</span>
+                  <p className="text-xs text-primary-foreground/80">Pastry Shop</p>
+                </div>
               </div>
               <p className="text-primary-foreground/80 mb-4">
-                Creating sweet memories one cake at a time since 2010.
+                Indulging your sweet tooth since day one - because you deserve the best treats!
               </p>
               <div className="flex space-x-4">
                 <a href="https://instagram.com" className="hover:text-accent transition-colors">
@@ -283,35 +336,36 @@ const PublicWebsite = () => {
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4">Contact Info</h3>
+              <h3 className="font-semibold mb-4">Get in Touch</h3>
               <div className="space-y-2 text-primary-foreground/80">
                 <div className="flex items-center space-x-2">
                   <Phone className="h-4 w-4" />
-                  <span>(555) 123-CAKE</span>
+                  <span>(555) TREAT-ME</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4" />
-                  <span>hello@sweetdelights.com</span>
+                  <span>hello@treatyoself.com</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4" />
-                  <span>123 Bakery Lane, Sweet City</span>
+                  <span>Sweet Street, Dessert District</span>
                 </div>
               </div>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4">Hours</h3>
+              <h3 className="font-semibold mb-4">Shop Hours</h3>
               <div className="space-y-1 text-primary-foreground/80">
-                <p>Monday - Friday: 7AM - 7PM</p>
-                <p>Saturday: 8AM - 8PM</p>
-                <p>Sunday: 9AM - 5PM</p>
+                <p>Tuesday - Friday: 9AM - 7PM</p>
+                <p>Saturday: 10AM - 8PM</p>
+                <p>Sunday: 11AM - 6PM</p>
+                <p className="text-accent font-semibold">Monday: Closed (Baking Day!)</p>
               </div>
             </div>
           </div>
           
           <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-primary-foreground/60">
-            <p>&copy; 2024 Sweet Delights Bakery. All rights reserved.</p>
+            <p>&copy; 2024 Treat Yo Self Pastry Shop. All rights reserved. | Life's too short for boring desserts!</p>
           </div>
         </div>
       </footer>

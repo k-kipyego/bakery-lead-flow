@@ -2,304 +2,275 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Cake, Users, TrendingUp, Calendar, ArrowLeft, Search, Filter, Mail, Phone, MessageSquare } from 'lucide-react';
-import { Link } from 'react-router-dom';
-
-// Mock data - in real app this would come from Supabase
-const mockLeads = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    email: "sarah@email.com",
-    phone: "(555) 123-4567",
-    cakeType: "Wedding Cake",
-    message: "Looking for a 3-tier wedding cake for June 15th. Prefer vanilla with buttercream. Budget around $400.",
-    status: "new",
-    createdAt: "2024-01-15",
-    priority: "high"
-  },
-  {
-    id: 2,
-    name: "Mike Chen",
-    email: "mike.chen@email.com",
-    phone: "(555) 987-6543",
-    cakeType: "Birthday Cake",
-    message: "Need a custom birthday cake for my daughter's 5th birthday. She loves unicorns!",
-    status: "contacted",
-    createdAt: "2024-01-14",
-    priority: "medium"
-  },
-  {
-    id: 3,
-    name: "Emily Rodriguez",
-    email: "emily.r@email.com",
-    phone: "",
-    cakeType: "Cupcakes",
-    message: "Corporate event on Friday. Need 50 assorted cupcakes delivered to downtown office.",
-    status: "quoted",
-    createdAt: "2024-01-13",
-    priority: "high"
-  },
-  {
-    id: 4,
-    name: "David Wilson",
-    email: "dwilson@email.com",
-    phone: "(555) 456-7890",
-    cakeType: "Custom Design",
-    message: "Anniversary cake with photo print. 25th wedding anniversary celebration.",
-    status: "completed",
-    createdAt: "2024-01-10",
-    priority: "low"
-  }
-];
+import { Users, TrendingUp, Calendar, DollarSign, Search, Filter, Cake, Cookie, Heart } from 'lucide-react';
 
 const CRMDashboard = () => {
-  const [leads, setLeads] = useState(mockLeads);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Mock data - in real app this would come from Supabase
+  const leads = [
+    {
+      id: 1,
+      name: 'Sarah Johnson',
+      email: 'sarah@email.com',
+      phone: '(555) 123-4567',
+      productType: 'Specialty Cake - Salted Caramel',
+      message: 'Need a 2kg birthday cake for next Saturday. Love the salted caramel flavor!',
+      status: 'new',
+      createdAt: '2024-01-15',
+      estimatedValue: 4500
+    },
+    {
+      id: 2,
+      name: 'Mike Chen',
+      email: 'mike.chen@company.com',
+      phone: '(555) 987-6543',
+      productType: 'Cookies - Death by Chocolate',
+      message: 'Office party order - need 5 dozen cookies for Friday delivery',
+      status: 'contacted',
+      createdAt: '2024-01-14',
+      estimatedValue: 2500
+    },
+    {
+      id: 3,
+      name: 'Emma Williams',
+      email: 'emma.w@email.com',
+      phone: '(555) 456-7890',
+      productType: 'Classic Cake - Red Velvet',
+      message: 'Wedding cake consultation needed. Looking for 3-tier red velvet design.',
+      status: 'quoted',
+      createdAt: '2024-01-13',
+      estimatedValue: 8500
+    },
+    {
+      id: 4,
+      name: 'David Brown',
+      email: 'david.brown@email.com',
+      phone: '(555) 321-9876',
+      productType: 'Brownies - Classic',
+      message: 'Regular weekly order for my café. Need 3 dozen brownies every Tuesday.',
+      status: 'converted',
+      createdAt: '2024-01-12',
+      estimatedValue: 1800
+    }
+  ];
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'new': return 'bg-blue-100 text-blue-800';
-      case 'contacted': return 'bg-yellow-100 text-yellow-800';
-      case 'quoted': return 'bg-purple-100 text-purple-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'new': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'contacted': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'quoted': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'converted': return 'bg-green-100 text-green-800 border-green-200';
+      case 'lost': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-orange-100 text-orange-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'new': return 'New Inquiry';
+      case 'contacted': return 'Contacted';
+      case 'quoted': return 'Quote Sent';
+      case 'converted': return 'Order Confirmed';
+      case 'lost': return 'Not Interested';
+      default: return status;
     }
-  };
-
-  const updateLeadStatus = (leadId: number, newStatus: string) => {
-    setLeads(prev => prev.map(lead => 
-      lead.id === leadId ? { ...lead, status: newStatus } : lead
-    ));
   };
 
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         lead.cakeType.toLowerCase().includes(searchTerm.toLowerCase());
+                         lead.productType.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const stats = {
-    totalLeads: leads.length,
-    newLeads: leads.filter(l => l.status === 'new').length,
-    activeLeads: leads.filter(l => ['new', 'contacted', 'quoted'].includes(l.status)).length,
-    completedLeads: leads.filter(l => l.status === 'completed').length
-  };
+  const totalValue = leads.reduce((sum, lead) => sum + lead.estimatedValue, 0);
+  const convertedValue = leads.filter(lead => lead.status === 'converted').reduce((sum, lead) => sum + lead.estimatedValue, 0);
+  const conversionRate = leads.length > 0 ? Math.round((leads.filter(lead => lead.status === 'converted').length / leads.length) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-      {/* Header */}
-      <div className="bg-white border-b">
+      {/* Navigation */}
+      <nav className="bg-white/90 backdrop-blur-sm border-b border-accent/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Website
-                </Link>
-              </Button>
-              <div className="flex items-center space-x-2">
-                <Cake className="h-6 w-6 text-primary" />
-                <span className="font-serif text-xl font-bold text-primary">CRM Dashboard</span>
+            <div className="flex items-center space-x-3">
+              <Cake className="h-8 w-8 text-primary" />
+              <div>
+                <span className="font-serif text-xl font-bold text-primary">Treat Yo Self</span>
+                <span className="text-sm text-muted-foreground ml-2">Staff Portal</span>
               </div>
             </div>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/sales">Sales Log</Link>
+            <div className="flex space-x-4">
+              <Button asChild variant="outline" size="sm">
+                <a href="/">Public Site</a>
               </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/invoicing">Invoicing</Link>
+              <Button asChild variant="outline" size="sm">
+                <a href="/sales">Sales Log</a>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <a href="/invoicing">Invoicing</a>
               </Button>
             </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="font-serif text-4xl font-bold text-primary mb-2">Customer Management</h1>
+          <p className="text-muted-foreground">Track inquiries and manage your sweet customer relationships</p>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card className="border-accent/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Inquiries</CardTitle>
+              <Users className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalLeads}</div>
-              <p className="text-xs text-muted-foreground">All time</p>
+              <div className="text-2xl font-bold text-primary">{leads.length}</div>
+              <p className="text-xs text-muted-foreground">Active customer leads</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-accent/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">New Leads</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Conversion Rate</CardTitle>
+              <TrendingUp className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.newLeads}</div>
-              <p className="text-xs text-muted-foreground">Require attention</p>
+              <div className="text-2xl font-bold text-primary">{conversionRate}%</div>
+              <p className="text-xs text-muted-foreground">Inquiries to orders</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-accent/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Orders</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pipeline Value</CardTitle>
+              <DollarSign className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{stats.activeLeads}</div>
-              <p className="text-xs text-muted-foreground">In progress</p>
+              <div className="text-2xl font-bold text-primary">₹{totalValue.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">Potential revenue</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-accent/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <Cake className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Confirmed Orders</CardTitle>
+              <Heart className="h-4 w-4 text-primary" fill="currentColor" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.completedLeads}</div>
-              <p className="text-xs text-muted-foreground">This month</p>
+              <div className="text-2xl font-bold text-primary">₹{convertedValue.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">Revenue secured</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Content */}
-        <Card>
+        {/* Filters */}
+        <Card className="mb-6 border-accent/20">
           <CardHeader>
-            <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
-              <div>
-                <CardTitle>Customer Leads</CardTitle>
-                <CardDescription>Manage and track all customer inquiries</CardDescription>
-              </div>
-              
-              <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+            <CardTitle className="text-primary">Filter & Search</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search leads..."
+                    placeholder="Search by name, email, or product..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-full md:w-64"
+                    className="pl-10"
                   />
                 </div>
-                
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full md:w-32">
-                    <Filter className="h-4 w-4 mr-2" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="contacted">Contacted</SelectItem>
-                    <SelectItem value="quoted">Quoted</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
-            </div>
-          </CardHeader>
-          
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Cake Type</TableHead>
-                    <TableHead>Message</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredLeads.map((lead) => (
-                    <TableRow key={lead.id}>
-                      <TableCell className="font-medium">{lead.name}</TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm">
-                            <Mail className="h-3 w-3 mr-1" />
-                            {lead.email}
-                          </div>
-                          {lead.phone && (
-                            <div className="flex items-center text-sm text-muted-foreground">
-                              <Phone className="h-3 w-3 mr-1" />
-                              {lead.phone}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{lead.cakeType}</Badge>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <p className="text-sm truncate" title={lead.message}>
-                          {lead.message}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={getPriorityColor(lead.priority)}>
-                          {lead.priority}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Select value={lead.status} onValueChange={(value) => updateLeadStatus(lead.id, value)}>
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="new">New</SelectItem>
-                            <SelectItem value="contacted">Contacted</SelectItem>
-                            <SelectItem value="quoted">Quoted</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {new Date(lead.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-1">
-                          <Button variant="ghost" size="sm">
-                            <Mail className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Phone className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <MessageSquare className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="new">New Inquiries</SelectItem>
+                  <SelectItem value="contacted">Contacted</SelectItem>
+                  <SelectItem value="quoted">Quote Sent</SelectItem>
+                  <SelectItem value="converted">Confirmed Orders</SelectItem>
+                  <SelectItem value="lost">Not Interested</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
+
+        {/* Leads List */}
+        <div className="space-y-4">
+          {filteredLeads.map((lead) => (
+            <Card key={lead.id} className="border-accent/20 hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+                  <div>
+                    <CardTitle className="text-lg text-primary">{lead.name}</CardTitle>
+                    <CardDescription className="flex items-center space-x-4 mt-1">
+                      <span>{lead.email}</span>
+                      {lead.phone && <span>{lead.phone}</span>}
+                      <span className="text-xs">Inquiry: {lead.createdAt}</span>
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Badge className={getStatusColor(lead.status)}>
+                      {getStatusLabel(lead.status)}
+                    </Badge>
+                    <Badge variant="outline" className="text-primary border-primary/50">
+                      ₹{lead.estimatedValue.toLocaleString()}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div>
+                    <strong className="text-primary">Product Interest:</strong>
+                    <span className="ml-2 text-muted-foreground">{lead.productType}</span>
+                  </div>
+                  <div>
+                    <strong className="text-primary">Message:</strong>
+                    <p className="mt-1 text-muted-foreground">{lead.message}</p>
+                  </div>
+                  <div className="flex space-x-2 pt-2">
+                    <Button size="sm" variant="default">
+                      Contact Customer
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      Send Quote
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      Mark as Converted
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filteredLeads.length === 0 && (
+          <Card className="border-accent/20">
+            <CardContent className="text-center py-12">
+              <Cookie className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-muted-foreground">No customers found</h3>
+              <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

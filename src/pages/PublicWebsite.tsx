@@ -46,30 +46,36 @@ const PublicWebsite = () => {
     }));
   };
 
+  const handleWhatsAppChat = () => {
+    const message = "Hi! I'm interested in ordering from Treat Yo Self Pastry Shop. Could you help me with my order?";
+    const whatsappUrl = `https://wa.me/254700000000?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const productCategories = [
     { 
       name: "Simple Cakes", 
       description: "Classic flavors made with love",
       items: ["Very Vanilla", "Chocolate Marble", "Strawberry Marble", "Strawberry", "Lemon", "Orange"],
-      price: "From ₹2500" 
+      price: "From KSH 2,500" 
     },
     { 
       name: "Classic Cakes", 
       description: "Traditional favorites that never go out of style",
       items: ["Banana Bread", "Carrot", "Chocolate", "Red Velvet", "Funfetti"],
-      price: "From ₹2800" 
+      price: "From KSH 2,800" 
     },
     { 
       name: "Specialty Cakes", 
       description: "Unique flavors for adventurous taste buds",
       items: ["Blueberry Lemon", "Cookies & Cream", "Salted Caramel", "Chocolate Caramel", "Chocolate Mint"],
-      price: "From ₹3000" 
+      price: "From KSH 3,000" 
     },
     { 
       name: "Treats & More", 
       description: "Perfect for sharing or personal indulgence",
       items: ["Chocolate Chip Cookies", "Red Velvet Brownies", "Death by Chocolate Cookies", "Classic Brownies"],
-      price: "From ₹100/piece" 
+      price: "From KSH 100/piece" 
     }
   ];
 
@@ -226,81 +232,127 @@ const PublicWebsite = () => {
             </p>
           </div>
 
-          <Card className="max-w-2xl mx-auto border-accent/20">
-            <CardHeader>
-              <CardTitle className="text-primary">Request Your Custom Order</CardTitle>
-              <CardDescription>Tell us about your dream treat and we'll create something special</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <Card className="flex-1 border-accent/20">
+              <CardHeader>
+                <CardTitle className="text-primary">Request Your Custom Order</CardTitle>
+                <CardDescription>Tell us about your dream treat and we'll create something special</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name *</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Your name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="Your phone number"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cakeType">What are you craving?</Label>
+                      <Input
+                        id="cakeType"
+                        name="cakeType"
+                        value={formData.cakeType}
+                        onChange={handleInputChange}
+                        placeholder="Cake, cookies, brownies, etc."
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
+                    <Label htmlFor="message">Tell us more about your order *</Label>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
                       onChange={handleInputChange}
                       required
-                      placeholder="Your name"
+                      placeholder="Describe your ideal treat - flavors, size, special occasions, delivery date, etc."
+                      rows={4}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="your@email.com"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="Your phone number"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cakeType">What are you craving?</Label>
-                    <Input
-                      id="cakeType"
-                      name="cakeType"
-                      value={formData.cakeType}
-                      onChange={handleInputChange}
-                      placeholder="Cake, cookies, brownies, etc."
-                    />
-                  </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="message">Tell us more about your order *</Label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Describe your ideal treat - flavors, size, special occasions, delivery date, etc."
-                    rows={4}
-                  />
-                </div>
+                  <Button type="submit" className="w-full" size="lg">
+                    Send My Sweet Request
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
 
-                <Button type="submit" className="w-full" size="lg">
-                  Send My Sweet Request
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+            <div className="lg:w-80">
+              <Card className="border-accent/20 mb-6">
+                <CardHeader>
+                  <CardTitle className="text-primary flex items-center">
+                    <MessageCircle className="h-5 w-5 mr-2" />
+                    Chat with Us
+                  </CardTitle>
+                  <CardDescription>
+                    Need quick help? Chat with us directly on WhatsApp!
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={handleWhatsAppChat}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    size="lg"
+                  >
+                    <MessageCircle className="h-5 w-5 mr-2" />
+                    Chat on WhatsApp
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-accent/20">
+                <CardHeader>
+                  <CardTitle className="text-primary">Quick Contact</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center space-x-3 text-muted-foreground">
+                    <Phone className="h-4 w-4" />
+                    <span>(254) 700-000-000</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <span>hello@treatyoself.co.ke</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-muted-foreground">
+                    <MapPin className="h-4 w-4" />
+                    <span>Nairobi, Kenya</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -329,7 +381,7 @@ const PublicWebsite = () => {
                 <a href="https://facebook.com" className="hover:text-accent transition-colors">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="https://wa.me/5551234567" className="hover:text-accent transition-colors">
+                <a href="https://wa.me/254700000000" className="hover:text-accent transition-colors">
                   <MessageCircle className="h-5 w-5" />
                 </a>
               </div>
@@ -340,15 +392,15 @@ const PublicWebsite = () => {
               <div className="space-y-2 text-primary-foreground/80">
                 <div className="flex items-center space-x-2">
                   <Phone className="h-4 w-4" />
-                  <span>(555) TREAT-ME</span>
+                  <span>(254) 700-000-000</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4" />
-                  <span>hello@treatyoself.com</span>
+                  <span>hello@treatyoself.co.ke</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4" />
-                  <span>Sweet Street, Dessert District</span>
+                  <span>Nairobi, Kenya</span>
                 </div>
               </div>
             </div>

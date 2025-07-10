@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,7 @@ const CRMDashboard = () => {
       id: 1,
       name: 'Sarah Johnson',
       email: 'sarah@email.com',
-      phone: '(555) 123-4567',
+      phone: '(254) 700-123-456',
       productType: 'Specialty Cake - Salted Caramel',
       message: 'Need a 2kg birthday cake for next Saturday. Love the salted caramel flavor!',
       status: 'new',
@@ -28,7 +27,7 @@ const CRMDashboard = () => {
       id: 2,
       name: 'Mike Chen',
       email: 'mike.chen@company.com',
-      phone: '(555) 987-6543',
+      phone: '(254) 700-987-654',
       productType: 'Cookies - Death by Chocolate',
       message: 'Office party order - need 5 dozen cookies for Friday delivery',
       status: 'contacted',
@@ -39,7 +38,7 @@ const CRMDashboard = () => {
       id: 3,
       name: 'Emma Williams',
       email: 'emma.w@email.com',
-      phone: '(555) 456-7890',
+      phone: '(254) 700-456-789',
       productType: 'Classic Cake - Red Velvet',
       message: 'Wedding cake consultation needed. Looking for 3-tier red velvet design.',
       status: 'quoted',
@@ -50,7 +49,7 @@ const CRMDashboard = () => {
       id: 4,
       name: 'David Brown',
       email: 'david.brown@email.com',
-      phone: '(555) 321-9876',
+      phone: '(254) 700-321-987',
       productType: 'Brownies - Classic',
       message: 'Regular weekly order for my café. Need 3 dozen brownies every Tuesday.',
       status: 'converted',
@@ -111,6 +110,9 @@ const CRMDashboard = () => {
                 <a href="/">Public Site</a>
               </Button>
               <Button asChild variant="outline" size="sm">
+                <a href="/products">Products</a>
+              </Button>
+              <Button asChild variant="outline" size="sm">
                 <a href="/sales">Sales Log</a>
               </Button>
               <Button asChild variant="outline" size="sm">
@@ -158,7 +160,7 @@ const CRMDashboard = () => {
               <DollarSign className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">₹{totalValue.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-primary">KSH {totalValue.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">Potential revenue</p>
             </CardContent>
           </Card>
@@ -169,7 +171,7 @@ const CRMDashboard = () => {
               <Heart className="h-4 w-4 text-primary" fill="currentColor" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">₹{convertedValue.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-primary">KSH {convertedValue.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">Revenue secured</p>
             </CardContent>
           </Card>
@@ -230,7 +232,7 @@ const CRMDashboard = () => {
                       {getStatusLabel(lead.status)}
                     </Badge>
                     <Badge variant="outline" className="text-primary border-primary/50">
-                      ₹{lead.estimatedValue.toLocaleString()}
+                      KSH {lead.estimatedValue.toLocaleString()}
                     </Badge>
                   </div>
                 </div>

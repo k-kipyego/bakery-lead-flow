@@ -1,352 +1,275 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Cake, Plus, Edit, Trash2, Cookie, Heart, Search, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Cake, Plus, Search, Tag, DollarSign, Edit, Trash, Copy } from 'lucide-react';
+
+interface ProductSize {
+  size: string;
+  price: number;
+}
+
+interface ProductVariant {
+  type: string;
+  price: number;
+}
+
+interface ProductPack {
+  type: string;
+  size: string;
+  price: number;
+}
 
 interface Product {
   id: number;
   name: string;
-  category: string;
-  price: number;
+  basePrice: number;
+  unit: "kg" | "piece";
   description: string;
-  status: 'active' | 'inactive';
-  createdAt: string;
+  options: string[];
+  minQuantity?: number;
+  sizes?: ProductSize[];
+  variants?: ProductVariant[];
+  packs?: ProductPack[];
 }
 
+// Default product categories as initial data
+const DEFAULT_PRODUCTS: Product[] = [
+  {
+    id: 1,
+    name: "Simple Cakes",
+    basePrice: 2500,
+    unit: "kg",
+    description: "Classic flavors made with love",
+    options: ["Very Vanilla", "Chocolate Marble", "Strawberry Marble", "Strawberry", "Lemon", "Orange"],
+    sizes: [
+      { size: "1 kg", price: 2500 },
+      { size: "1.5 kg", price: 3500 },
+      { size: "2 kg", price: 4500 },
+      { size: "2.5 kg", price: 5000 },
+      { size: "3 kg", price: 5500 },
+      { size: "4 kg", price: 7000 },
+      { size: "5 kg", price: 8000 }
+    ]
+  },
+  {
+    id: 2,
+    name: "Classic Cakes",
+    basePrice: 2800,
+    unit: "kg",
+    description: "Traditional favorites that never go out of style",
+    options: ["Banana Bread", "Carrot", "Chocolate", "Red Velvet", "Funfetti"],
+    sizes: [
+      { size: "1 kg", price: 2800 },
+      { size: "1.5 kg", price: 3800 },
+      { size: "2 kg", price: 4800 },
+      { size: "2.5 kg", price: 5300 },
+      { size: "3 kg", price: 5800 },
+      { size: "4 kg", price: 7300 },
+      { size: "5 kg", price: 8300 }
+    ]
+  },
+  {
+    id: 3,
+    name: "Specialty Cakes",
+    basePrice: 3000,
+    unit: "kg",
+    description: "Unique flavors for adventurous taste buds",
+    options: ["Blueberry Lemon", "Cookies & Cream", "Salted Caramel", "Chocolate Caramel", "Chocolate Mint"],
+    sizes: [
+      { size: "1 kg", price: 3000 },
+      { size: "1.5 kg", price: 4000 },
+      { size: "2 kg", price: 5000 },
+      { size: "2.5 kg", price: 5500 },
+      { size: "3 kg", price: 6000 },
+      { size: "4 kg", price: 7500 },
+      { size: "5 kg", price: 8500 }
+    ]
+  },
+  {
+    id: 4,
+    name: "Bento Cakes",
+    basePrice: 1200,
+    unit: "piece",
+    description: "Perfect personal-sized cakes for special moments",
+    options: ["Simple", "Classic", "Specialty"],
+    variants: [
+      { type: "Simple cakes", price: 1200 },
+      { type: "Classic cakes", price: 1500 },
+      { type: "Specialty cakes", price: 1800 }
+    ]
+  },
+  {
+    id: 5,
+    name: "Cupcakes",
+    basePrice: 150,
+    unit: "piece",
+    description: "Delightful bite-sized treats",
+    minQuantity: 6,
+    options: ["Simple/Classic", "Specialty"],
+    packs: [
+      { type: "Simple/Classic", size: "6 pack", price: 900 },
+      { type: "Simple/Classic", size: "12 pack", price: 1800 },
+      { type: "Specialty", size: "6 pack", price: 1100 },
+      { type: "Specialty", size: "12 pack", price: 2200 }
+    ]
+  },
+  {
+    id: 6,
+    name: "Cookies & Brownies",
+    basePrice: 100,
+    unit: "piece",
+    description: "Perfect for sharing or personal indulgence",
+    minQuantity: 6,
+    options: ["Chocolate Chip Cookies", "Red Velvet White Choc Chip", "Death by Chocolate", "Classic Brownies", "Red Velvet Brownies"],
+    packs: [
+      { type: "Cookies", size: "6 pieces", price: 600 },
+      { type: "Cookies", size: "12 pieces", price: 1200 },
+      { type: "Brownies", size: "6 pieces", price: 900 },
+      { type: "Brownies", size: "12 pieces", price: 1800 }
+    ]
+  }
+];
+
 const Products = () => {
+  const [products, setProducts] = useState<Product[]>(() => {
+    const stored = localStorage.getItem('products');
+    return stored ? JSON.parse(stored) : DEFAULT_PRODUCTS;
+  });
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    category: '',
-    price: '',
-    description: '',
-    status: 'active' as 'active' | 'inactive'
-  });
+  const [isAddingOption, setIsAddingOption] = useState(false);
+  const [newOption, setNewOption] = useState('');
 
-  // Mock data - in real app this would come from Supabase
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      name: 'Very Vanilla Cake',
-      category: 'Simple Cakes',
-      price: 2500,
-      description: 'Classic vanilla cake with smooth vanilla frosting',
-      status: 'active',
-      createdAt: '2024-01-15'
-    },
-    {
-      id: 2,
-      name: 'Chocolate Marble Cake',
-      category: 'Simple Cakes',
-      price: 2500,
-      description: 'Beautiful marble cake with chocolate and vanilla swirls',
-      status: 'active',
-      createdAt: '2024-01-14'
-    },
-    {
-      id: 3,
-      name: 'Red Velvet Cake',
-      category: 'Classic Cakes',
-      price: 2800,
-      description: 'Rich red velvet cake with cream cheese frosting',
-      status: 'active',
-      createdAt: '2024-01-13'
-    },
-    {
-      id: 4,
-      name: 'Salted Caramel Cake',
-      category: 'Specialty Cakes',
-      price: 3000,
-      description: 'Decadent cake with salted caramel layers and frosting',
-      status: 'active',
-      createdAt: '2024-01-12'
-    },
-    {
-      id: 5,
-      name: 'Chocolate Chip Cookies',
-      category: 'Treats & More',
-      price: 100,
-      description: 'Classic chocolate chip cookies (per piece)',
-      status: 'active',
-      createdAt: '2024-01-11'
-    }
-  ]);
+  // Save products to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('products', JSON.stringify(products));
+  }, [products]);
 
-  const categories = ['Simple Cakes', 'Classic Cakes', 'Specialty Cakes', 'Treats & More'];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (editingProduct) {
-      // Update existing product
-      setProducts(products.map(product => 
-        product.id === editingProduct.id 
-          ? {
-              ...product,
-              name: formData.name,
-              category: formData.category,
-              price: parseFloat(formData.price),
-              description: formData.description,
-              status: formData.status
-            }
-          : product
-      ));
-      
-      toast({
-        title: "Product updated successfully!",
-        description: `${formData.name} has been updated.`,
-      });
-      
-      setEditingProduct(null);
-    } else {
-      // Add new product
+  const handleAddProduct = () => {
       const newProduct: Product = {
-        id: Math.max(...products.map(p => p.id)) + 1,
-        name: formData.name,
-        category: formData.category,
-        price: parseFloat(formData.price),
-        description: formData.description,
-        status: formData.status,
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      
-      setProducts([...products, newProduct]);
-      
+      id: Math.max(0, ...products.map(p => p.id)) + 1,
+      name: "",
+      basePrice: 0,
+      unit: "piece",
+      description: "",
+      options: [],
+      sizes: []
+    };
+    setEditingProduct(newProduct);
+    setIsEditing(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct({ ...product });
+    setIsEditing(true);
+  };
+
+  const handleDeleteProduct = (productId: number) => {
+    if (confirm('Are you sure you want to delete this product?')) {
+      setProducts(products.filter(p => p.id !== productId));
       toast({
-        title: "Product added successfully!",
-        description: `${formData.name} has been added to your menu.`,
+        title: "Product deleted",
+        description: "The product has been removed from your catalog."
       });
     }
-    
-    // Reset form
-    setFormData({
-      name: '',
-      category: '',
-      price: '',
-      description: '',
-      status: 'active'
-    });
-    setShowAddForm(false);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
+  const handleSaveProduct = () => {
+    if (!editingProduct) return;
 
-  const handleEdit = (product: Product) => {
-    setEditingProduct(product);
-    setFormData({
-      name: product.name,
-      category: product.category,
-      price: product.price.toString(),
-      description: product.description,
-      status: product.status
-    });
-    setShowAddForm(true);
-  };
+    const updatedProducts = editingProduct.id
+      ? products.map(p => p.id === editingProduct.id ? editingProduct : p)
+      : [...products, editingProduct];
 
-  const handleDelete = (productId: number) => {
-    setProducts(products.filter(p => p.id !== productId));
+    setProducts(updatedProducts);
+    setIsEditing(false);
+    setEditingProduct(null);
     toast({
-      title: "Product deleted",
-      description: "The product has been removed from your menu.",
+      title: editingProduct.id ? "Product updated" : "Product added",
+      description: `${editingProduct.name} has been ${editingProduct.id ? 'updated' : 'added'} successfully.`
     });
   };
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
-
-  const getStatusColor = (status: string) => {
-    return status === 'active' 
-      ? 'bg-green-100 text-green-800 border-green-200'
-      : 'bg-gray-100 text-gray-800 border-gray-200';
+  const handleAddOption = () => {
+    if (!editingProduct || !newOption.trim()) return;
+    setEditingProduct({
+      ...editingProduct,
+      options: [...editingProduct.options, newOption.trim()]
+    });
+    setNewOption('');
+    setIsAddingOption(false);
   };
+
+  const handleRemoveOption = (index: number) => {
+    if (!editingProduct) return;
+    setEditingProduct({
+      ...editingProduct,
+      options: editingProduct.options.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleAddSize = () => {
+    if (!editingProduct) return;
+    setEditingProduct({
+      ...editingProduct,
+      sizes: [...(editingProduct.sizes || []), { size: "", price: 0 }]
+    });
+  };
+
+  const handleUpdateSize = (index: number, field: keyof ProductSize, value: string | number) => {
+    if (!editingProduct || !editingProduct.sizes) return;
+    const newSizes = [...editingProduct.sizes];
+    newSizes[index] = {
+      ...newSizes[index],
+      [field]: field === 'price' ? Number(value) : value
+    };
+    setEditingProduct({
+      ...editingProduct,
+      sizes: newSizes
+    });
+  };
+
+  const handleRemoveSize = (index: number) => {
+    if (!editingProduct || !editingProduct.sizes) return;
+    setEditingProduct({
+      ...editingProduct,
+      sizes: editingProduct.sizes.filter((_, i) => i !== index)
+    });
+  };
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.options.some(option => option.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-      {/* Navigation */}
-      <nav className="bg-white/90 backdrop-blur-sm border-b border-accent/20">
+      {/* Header */}
+      <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <Cake className="h-8 w-8 text-primary" />
-              <div>
-                <span className="font-serif text-xl font-bold text-primary">Treat Yo Self</span>
-                <span className="text-sm text-muted-foreground ml-2">Product Management</span>
-              </div>
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/crm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to CRM
+                </Link>
+              </Button>
+              <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                <Cake className="h-6 w-6 text-primary" />
+                <span className="font-serif text-xl font-bold text-primary">Products</span>
+              </Link>
             </div>
-            <div className="flex space-x-4">
-              <Button asChild variant="outline" size="sm">
-                <a href="/">Public Site</a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <a href="/crm">CRM</a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <a href="/sales">Sales Log</a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <a href="/invoicing">Invoicing</a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="font-serif text-4xl font-bold text-primary mb-2">Product Management</h1>
-            <p className="text-muted-foreground">Manage your delicious menu items and pricing</p>
-          </div>
-          <Button 
-            onClick={() => {
-              setShowAddForm(true);
-              setEditingProduct(null);
-              setFormData({
-                name: '',
-                category: '',
-                price: '',
-                description: '',
-                status: 'active'
-              });
-            }}
-            className="flex items-center space-x-2"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Add New Product</span>
-          </Button>
-        </div>
-
-        {/* Add/Edit Product Form */}
-        {showAddForm && (
-          <Card className="mb-8 border-accent/20">
-            <CardHeader>
-              <CardTitle className="text-primary">
-                {editingProduct ? 'Edit Product' : 'Add New Product'}
-              </CardTitle>
-              <CardDescription>
-                {editingProduct ? 'Update product information' : 'Add a new item to your menu'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Product Name *</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="e.g., Chocolate Cake"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category *</Label>
-                    <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price (KSH) *</Label>
-                    <Input
-                      id="price"
-                      name="price"
-                      type="number"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="2500"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select value={formData.status} onValueChange={(value: 'active' | 'inactive') => setFormData(prev => ({ ...prev, status: value }))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="Describe your product..."
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex space-x-2">
-                  <Button type="submit">
-                    {editingProduct ? 'Update Product' : 'Add Product'}
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      setShowAddForm(false);
-                      setEditingProduct(null);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Filters */}
-        <Card className="mb-6 border-accent/20">
-          <CardHeader>
-            <CardTitle className="text-primary">Filter & Search Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
+            <div className="flex items-center space-x-4">
+              <div className="relative w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search products..."
@@ -355,69 +278,105 @@ const Products = () => {
                     className="pl-10"
                   />
                 </div>
-              </div>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full sm:w-48">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filter by category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category}>{category}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Button onClick={handleAddProduct}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Product
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Products Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
-            <Card key={product.id} className="border-accent/20 hover:shadow-md transition-shadow">
+            <Card key={product.id} className="overflow-hidden">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg text-primary">{product.name}</CardTitle>
-                    <CardDescription className="mt-1">{product.category}</CardDescription>
+                    <CardTitle className="text-xl text-primary">{product.name}</CardTitle>
+                    <CardDescription className="mt-2">{product.description}</CardDescription>
                   </div>
-                  <Badge className={getStatusColor(product.status)}>
-                    {product.status}
+                  <Badge variant="outline" className="bg-primary/5 border-primary/10">
+                    From KES {product.basePrice.toLocaleString()}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="text-2xl font-bold text-primary">
-                    KSH {product.price.toLocaleString()}
+                <div className="space-y-4">
+                  {/* Options */}
+                  <div>
+                    <Label className="text-sm text-muted-foreground mb-2 block">Available Options:</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {product.options.map((option, idx) => (
+                        <div key={idx} className="flex items-center text-sm">
+                          <Tag className="h-3 w-3 mr-2 text-primary" />
+                          {option}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  
-                  {product.description && (
-                    <p className="text-muted-foreground text-sm">{product.description}</p>
+
+                  {/* Pricing Details */}
+                  <div className="border-t pt-4">
+                    <Label className="text-sm text-muted-foreground mb-2 block">Pricing:</Label>
+                    {product.sizes && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {product.sizes.map((size, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-sm">
+                            <span>{size.size}</span>
+                            <span className="font-medium">KES {size.price.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {product.variants && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {product.variants.map((variant, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-sm">
+                            <span>{variant.type}</span>
+                            <span className="font-medium">KES {variant.price.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {product.packs && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {product.packs.map((pack, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-sm">
+                            <span>{pack.type} - {pack.size}</span>
+                            <span className="font-medium">KES {pack.price.toLocaleString()}</span>
+                      </div>
+                    ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Minimum Order */}
+                  {product.minQuantity && (
+                    <div className="text-sm text-muted-foreground">
+                      Minimum order: {product.minQuantity} {product.unit}s
+                    </div>
                   )}
-                  
-                  <div className="text-xs text-muted-foreground">
-                    Added: {product.createdAt}
-                  </div>
-                  
-                  <div className="flex space-x-2 pt-2">
-                    <Button 
-                      size="sm" 
+
+                  {/* Actions */}
+                  <div className="flex justify-end space-x-2 pt-4 border-t">
+                    <Button
                       variant="outline"
-                      onClick={() => handleEdit(product)}
-                      className="flex-1"
+                      size="sm"
+                      onClick={() => handleEditProduct(product)}
                     >
-                      <Edit className="h-3 w-3 mr-1" />
+                      <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
                       variant="outline"
-                      onClick={() => handleDelete(product.id)}
-                      className="text-red-600 hover:text-red-700"
+                      size="sm"
+                      onClick={() => handleDeleteProduct(product.id)}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash className="h-4 w-4 mr-2" />
+                      Delete
                     </Button>
                   </div>
                 </div>
@@ -426,15 +385,193 @@ const Products = () => {
           ))}
         </div>
 
-        {filteredProducts.length === 0 && (
-          <Card className="border-accent/20">
-            <CardContent className="text-center py-12">
-              <Cookie className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-muted-foreground">No products found</h3>
-              <p className="text-muted-foreground">Try adjusting your search or add a new product.</p>
-            </CardContent>
-          </Card>
-        )}
+        {/* Edit Product Dialog */}
+        <Dialog open={isEditing} onOpenChange={(open) => {
+          if (!open) {
+            setIsEditing(false);
+            setEditingProduct(null);
+          }
+        }}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{editingProduct?.id ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Product Name *</Label>
+                  <Input
+                    value={editingProduct?.name || ''}
+                    onChange={(e) => setEditingProduct(prev => prev ? {
+                      ...prev,
+                      name: e.target.value
+                    } : null)}
+                    placeholder="Product name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Base Price (KES) *</Label>
+                  <Input
+                    type="number"
+                    value={editingProduct?.basePrice || 0}
+                    onChange={(e) => setEditingProduct(prev => prev ? {
+                      ...prev,
+                      basePrice: Number(e.target.value)
+                    } : null)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Unit *</Label>
+                  <select
+                    className="w-full border rounded-md h-10 px-3"
+                    value={editingProduct?.unit}
+                    onChange={(e) => setEditingProduct(prev => prev ? {
+                      ...prev,
+                      unit: e.target.value as "kg" | "piece"
+                    } : null)}
+                  >
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="piece">Piece</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Minimum Quantity</Label>
+                  <Input
+                    type="number"
+                    value={editingProduct?.minQuantity || ''}
+                    onChange={(e) => setEditingProduct(prev => prev ? {
+                      ...prev,
+                      minQuantity: Number(e.target.value) || undefined
+                    } : null)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Input
+                  value={editingProduct?.description || ''}
+                  onChange={(e) => setEditingProduct(prev => prev ? {
+                    ...prev,
+                    description: e.target.value
+                  } : null)}
+                  placeholder="Product description"
+                />
+              </div>
+
+              {/* Options */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Options</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsAddingOption(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Option
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {editingProduct?.options.map((option, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <span>{option}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveOption(idx)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sizes */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Sizes & Prices</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddSize}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Size
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {editingProduct?.sizes?.map((size, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Input
+                        placeholder="Size (e.g., 1 kg)"
+                        value={size.size}
+                        onChange={(e) => handleUpdateSize(idx, 'size', e.target.value)}
+                      />
+                      <Input
+                        type="number"
+                        placeholder="Price"
+                        value={size.price}
+                        onChange={(e) => handleUpdateSize(idx, 'price', e.target.value)}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveSize(idx)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveProduct}>
+                {editingProduct?.id ? 'Update Product' : 'Add Product'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Option Dialog */}
+        <Dialog open={isAddingOption} onOpenChange={setIsAddingOption}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Option</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Option Name</Label>
+                <Input
+                  value={newOption}
+                  onChange={(e) => setNewOption(e.target.value)}
+                  placeholder="Enter option name"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddingOption(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddOption}>
+                Add Option
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
